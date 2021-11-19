@@ -351,4 +351,5 @@ MigrationBackup/
 .ionide/
 
 
-*.App.config
+**/*.App.config
+**/*.env
