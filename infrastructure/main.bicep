@@ -1,7 +1,7 @@
 @description('リソース名の一部に利用されます。必要に応じて変更してください。既定値:twitter')
-param project string
+param project string='twitter'
 @description('リソース名の一部に利用されます。必要に応じて変更してください。既定値:demo')
-param env string
+param env string='demo'
 @description('ランダム性を保つ文字列を入力してください。小文字英数のみ。例：test01')
 @minLength(4)
 @maxLength(8)

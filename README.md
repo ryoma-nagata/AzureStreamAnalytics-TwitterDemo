@@ -5,6 +5,10 @@ vscodeにより簡単にデプロイできます。
 
 [Azure Stream Analytics でのソーシャル メディア分析](https://docs.microsoft.com/ja-jp/azure/stream-analytics/stream-analytics-twitter-sentiment-analysis-trends#prerequisites)
 
+[![Deploy to Azure](https://aka.ms/deploytoazurebutton)](https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2Fryoma-nagata%2FAzureStreamAnalytics-TwitterDemo%2Fmaster%2Finfrastructure%2Fmain.json)
+
+
+
 
 ## 前提条件
 
@@ -32,7 +36,7 @@ vscodeにより簡単にデプロイできます。
 
 ![](.image/2021-11-19-10-53-01.png)
 
-### 4. 変数情報の設定
+### 3. 変数情報の設定
 
 「.devcontainer」フォルダ内の 「.envtemplate」を「devcontainer.env」に名前変更して、内容を更新します。
 
@@ -43,22 +47,22 @@ Power BI Workspaceに移動して、URLを確認します。
 ![](.image/2021-11-19-10-47-37.png)
 
 
-### 5. Remote-Containerの起動
+### 4. Remote-Containerの起動
 
 「Ctrl + Shigt + P」より、「Open Folder in Conteiner」を選択して、コンテナを起動します。
 
-### 6. deply.shの実行
+### 5. deply.shの実行
 
 ターミナルを起動して、以下を実行します。
 
-```bash:bash
+```BASH
 
 bash deploy.sh
 
 ```
 
 
-### 7. Twitter Clientの設定変更
+### 6. Twitter Clientの設定変更
 
 「src\TwitterClientCore」フォルダ内の「AppTemplate」を「App.config」に名前変更して、内容を更新します。
 
@@ -68,18 +72,18 @@ bash deploy.sh
 
 ![](.image/2021-11-19-11-01-07.png)
 
-### 8. Ttwwitter Clinetの実行
+### 7. Ttwwitter Clinetの実行
 
 ターミナル上で、以下を実行します。
 
-```bash:bash
+```BASH
 
 cd src\TwitterClientCore
 dotnet run
 
 ```
 
-### 9. Power BI Workspaceの権限設定
+### 8. Power BI Workspaceの権限設定
 
 #### ワークスペースを利用する場合　※要Power BI Proアカウント
 
@@ -98,14 +102,14 @@ Stream Analytics リソースに移動して、Power BI 出力を作成します
 
 ![](.image/2021-11-19-11-18-02.png)
 
-### 10. クエリの設定
+### 9. クエリの設定
 
 Stream Analytics リソースに移動して、クエリ画面セクションにて、以下のクエリを貼り付けます。
 ※マイワークスペースを作成した場合はINTO句のあて先を修正してください
 
 
 
-```sql:sql
+```SQL
 
 with s1 as(
 SELECT 
@@ -150,7 +154,7 @@ TumblingWindow(second,5),[keyword]
 ![](.image/2021-11-19-16-45-41.png)
 
 
-### 11. Power BI Dashboard の作成
+### 10. Power BI Dashboard の作成
 
 Power BI Workspace(またはマイワークスペース)に移動し、「作成」ボタンから任意の命名で「ダッシュボード」を作成します。
 
@@ -180,7 +184,7 @@ Power BI Workspace(またはマイワークスペース)に移動し、「作成
 
 Azure Streaming Analytics 内に以下のクエリを追加して、Power bi Dekstopからリアルタイムデータセットに接続することでより詳細なハッシュタグ分析が可能です。
 
-```sql:sql
+```SQL
 
 SELECT 
 T.[timestampUtc],

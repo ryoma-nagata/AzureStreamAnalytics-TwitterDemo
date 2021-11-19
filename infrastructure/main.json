@@ -5,18 +5,20 @@
     "_generator": {
       "name": "bicep",
       "version": "0.4.1008.15138",
-      "templateHash": "10275231979240331249"
+      "templateHash": "11638687982465850754"
     }
   },
   "parameters": {
     "project": {
       "type": "string",
+      "defaultValue": "twitter",
       "metadata": {
-        "description": "リソース名の一部に利用されます。必要に応じて変更してください既定値:twitter"
+        "description": "リソース名の一部に利用されます。必要に応じて変更してください。既定値:twitter"
       }
     },
     "env": {
       "type": "string",
+      "defaultValue": "demo",
       "metadata": {
         "description": "リソース名の一部に利用されます。必要に応じて変更してください。既定値:demo"
       }
