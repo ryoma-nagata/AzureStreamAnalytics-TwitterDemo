@@ -1,0 +1,281 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "metadata": {
+    "_generator": {
+      "name": "bicep",
+      "version": "0.4.1008.15138",
+      "templateHash": "12947841015136506528"
+    }
+  },
+  "parameters": {
+    "project": {
+      "type": "string"
+    },
+    "env": {
+      "type": "string"
+    },
+    "deployment_id": {
+      "type": "string"
+    },
+    "pbiGroupId": {
+      "type": "string"
+    }
+  },
+  "functions": [],
+  "variables": {
+    "uniqueName": "[format('{0}{1}{2}', parameters('project'), parameters('env'), parameters('deployment_id'))]"
+  },
+  "resources": [
+    {
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2020-06-01",
+      "name": "eventhubs_deployment",
+      "properties": {
+        "expressionEvaluationOptions": {
+          "scope": "inner"
+        },
+        "mode": "Incremental",
+        "parameters": {
+          "paramName": {
+            "value": "[variables('uniqueName')]"
+          }
+        },
+        "template": {
+          "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+          "contentVersion": "1.0.0.0",
+          "metadata": {
+            "_generator": {
+              "name": "bicep",
+              "version": "0.4.1008.15138",
+              "templateHash": "15685989377078282991"
+            }
+          },
+          "parameters": {
+            "paramName": {
+              "type": "string"
+            }
+          },
+          "functions": [],
+          "variables": {
+            "evhName": "[format('evh-{0}', parameters('paramName'))]",
+            "location": "[resourceGroup().location]"
+          },
+          "resources": [
+            {
+              "type": "Microsoft.EventHub/namespaces/eventhubs/consumergroups",
+              "apiVersion": "2021-01-01-preview",
+              "name": "[format('{0}/{1}/{2}', variables('evhName'), 'tweethub', 'asa')]",
+              "dependsOn": [
+                "[resourceId('Microsoft.EventHub/namespaces', variables('evhName'))]",
+                "[resourceId('Microsoft.EventHub/namespaces/eventhubs', variables('evhName'), 'tweethub')]"
+              ]
+            },
+            {
+              "type": "Microsoft.EventHub/namespaces/eventhubs",
+              "apiVersion": "2021-01-01-preview",
+              "name": "[format('{0}/{1}', variables('evhName'), 'tweethub')]",
+              "dependsOn": [
+                "[resourceId('Microsoft.EventHub/namespaces', variables('evhName'))]"
+              ]
+            },
+            {
+              "type": "Microsoft.EventHub/namespaces",
+              "apiVersion": "2021-01-01-preview",
+              "name": "[variables('evhName')]",
+              "location": "[variables('location')]"
+            }
+          ],
+          "outputs": {
+            "evhName": {
+              "type": "string",
+              "value": "[variables('evhName')]"
+            }
+          }
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2020-06-01",
+      "name": "streamanalytics_deployment",
+      "properties": {
+        "expressionEvaluationOptions": {
+          "scope": "inner"
+        },
+        "mode": "Incremental",
+        "parameters": {
+          "pbiGroupId": {
+            "value": "[parameters('pbiGroupId')]"
+          },
+          "paramName": {
+            "value": "[variables('uniqueName')]"
+          },
+          "evhName": {
+            "value": "[reference(resourceId('Microsoft.Resources/deployments', 'eventhubs_deployment'), '2020-06-01').outputs.evhName.value]"
+          }
+        },
+        "template": {
+          "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+          "contentVersion": "1.0.0.0",
+          "metadata": {
+            "_generator": {
+              "name": "bicep",
+              "version": "0.4.1008.15138",
+              "templateHash": "13702183484520002188"
+            }
+          },
+          "parameters": {
+            "paramName": {
+              "type": "string"
+            },
+            "evhName": {
+              "type": "string"
+            },
+            "pbiGroupId": {
+              "type": "string"
+            }
+          },
+          "functions": [],
+          "variables": {
+            "asaName": "[format('asa-{0}', parameters('paramName'))]",
+            "location": "[resourceGroup().location]"
+          },
+          "resources": [
+            {
+              "type": "Microsoft.StreamAnalytics/streamingjobs",
+              "apiVersion": "2020-03-01",
+              "name": "[variables('asaName')]",
+              "identity": {
+                "type": "SystemAssigned"
+              },
+              "location": "[variables('location')]",
+              "properties": {
+                "sku": {
+                  "name": "Standard"
+                },
+                "inputs": [
+                  {
+                    "name": "evh",
+                    "properties": {
+                      "type": "Stream",
+                      "compression": {
+                        "type": "GZip"
+                      },
+                      "serialization": {
+                        "type": "Json",
+                        "properties": {
+                          "encoding": "UTF8"
+                        }
+                      },
+                      "datasource": {
+                        "type": "Microsoft.EventHub/EventHub",
+                        "properties": {
+                          "authenticationMode": "Msi",
+                          "consumerGroupName": "asa",
+                          "serviceBusNamespace": "[parameters('evhName')]",
+                          "eventHubName": "tweethub"
+                        }
+                      }
+                    }
+                  }
+                ],
+                "transformation": {
+                  "name": "Transformation",
+                  "properties": {
+                    "streamingUnits": 1,
+                    "query": "SELECT System.Timestamp as Time, text\r\nFROM\r\n    [evh]"
+                  }
+                },
+                "outputs": [
+                  {
+                    "name": "pbi",
+                    "properties": {
+                      "datasource": {
+                        "type": "PowerBI",
+                        "properties": {
+                          "authenticationMode": "Msi",
+                          "groupId": "[parameters('pbiGroupId')]",
+                          "dataset": "ASA",
+                          "table": "Twitter"
+                        }
+                      }
+                    }
+                  }
+                ]
+              }
+            }
+          ],
+          "outputs": {
+            "asaName": {
+              "type": "string",
+              "value": "[variables('asaName')]"
+            }
+          }
+        }
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.Resources/deployments', 'eventhubs_deployment')]"
+      ]
+    },
+    {
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2020-06-01",
+      "name": "rbac_ops",
+      "properties": {
+        "expressionEvaluationOptions": {
+          "scope": "inner"
+        },
+        "mode": "Incremental",
+        "parameters": {
+          "asaName": {
+            "value": "[reference(resourceId('Microsoft.Resources/deployments', 'streamanalytics_deployment'), '2020-06-01').outputs.asaName.value]"
+          },
+          "evhName": {
+            "value": "[reference(resourceId('Microsoft.Resources/deployments', 'eventhubs_deployment'), '2020-06-01').outputs.evhName.value]"
+          }
+        },
+        "template": {
+          "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+          "contentVersion": "1.0.0.0",
+          "metadata": {
+            "_generator": {
+              "name": "bicep",
+              "version": "0.4.1008.15138",
+              "templateHash": "6457062681923528401"
+            }
+          },
+          "parameters": {
+            "asaName": {
+              "type": "string"
+            },
+            "evhName": {
+              "type": "string"
+            }
+          },
+          "functions": [],
+          "variables": {
+            "AzureEventHubsDataReceiver": "[format('/subscriptions/{0}/providers/Microsoft.Authorization/roleDefinitions/a638d3c7-ab3a-418d-83e6-5f17a39d4fde', subscription().subscriptionId)]"
+          },
+          "resources": [
+            {
+              "type": "Microsoft.Authorization/roleAssignments",
+              "apiVersion": "2020-04-01-preview",
+              "scope": "[format('Microsoft.EventHub/namespaces/{0}', parameters('evhName'))]",
+              "name": "[guid('asa-evhdatareceiver', parameters('asaName'))]",
+              "properties": {
+                "roleDefinitionId": "[variables('AzureEventHubsDataReceiver')]",
+                "principalId": "[reference(resourceId('Microsoft.StreamAnalytics/streamingjobs', parameters('asaName')), '2020-03-01', 'full').identity.principalId]",
+                "principalType": "ServicePrincipal"
+              }
+            }
+          ]
+        }
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.Resources/deployments', 'eventhubs_deployment')]",
+        "[resourceId('Microsoft.Resources/deployments', 'streamanalytics_deployment')]"
+      ]
+    }
+  ]
+}
