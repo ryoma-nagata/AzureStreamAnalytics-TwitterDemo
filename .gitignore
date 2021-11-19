@@ -353,3 +353,4 @@ MigrationBackup/
 
 App.config
 devconteinr.env
+.devcontainer/devcontainer.env
