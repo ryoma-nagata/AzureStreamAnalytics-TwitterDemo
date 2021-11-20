@@ -15,7 +15,7 @@ vscodeにより簡単にデプロイできます。
 - Azure サブスクリプションに対する所有者権限
 - [Twitter](https://twitter.com/)アカウント
 - docker
-- VSCode Remote Conteinr環境
+- VSCode Remote Container環境
 - - [WSL 開発環境を設定するためのベスト プラクティス](https://docs.microsoft.com/ja-jp/windows/wsl/setup/environment) を参照して環境をセットアップしてください。「Docker を使用してリモート開発コンテナーを設定する」まで実行すればOKです。
 - Power BI アカウント
 - - Proを持つ場合、ワークスペースを指定できます。持たない場合、マイワークスペースへの接続を作成する必要があります。
@@ -38,7 +38,7 @@ vscodeにより簡単にデプロイできます。
 
 ### 3. 変数情報の設定
 
-「.devcontainer」フォルダ内の 「.envtemplate」を「devcontainer.env」に名前変更して、内容を更新します。
+「.devcontainer」フォルダ内の 「envtemplate」を「devcontainer.env」に名前変更して、内容を更新します。
 
 #### Power BI Workspace IDの確認方法
 
@@ -78,7 +78,7 @@ bash deploy.sh
 
 ```BASH
 
-cd src\TwitterClientCore
+cd src/TwitterClientCore
 dotnet run
 
 ```
