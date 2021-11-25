@@ -44,7 +44,7 @@ vscodeにより簡単にデプロイできます。
 
 Power BI Workspaceに移動して、URLを確認します。
 
-![](.image/2021-11-19-10-47-37.png)
+![](.image/2021-11-19-10-47-37_1.png)
 
 
 ### 4. Remote-Containerの起動
@@ -90,7 +90,7 @@ dotnet run
 該当のワークスペースに移動して、アクセス設定からAzure Stream Analyticsのリソースを検索します。（asatwitterdemo-xxxで作成されます。)
 共同作成者以上の権限でメンバー追加します。
 
-![](.image/2021-11-19-11-07-22.png)
+![](.image/2021-11-19-11-07-22_1.png)
 
 #### マイワークスペースを利用する場合
 
